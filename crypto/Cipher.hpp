@@ -22,11 +22,6 @@ public:
 };
 
 // AESCipher: AES-256-GCM via OpenSSL's EVP API.
-//
-// Unlike libsodium's crypto_aead_aes256gcm (which refuses to run without
-// AES-NI hardware support), OpenSSL's EVP_aes_256_gcm has a full software
-// fallback and runs correctly -- just slower -- on any CPU. This is the
-// direct fix for "my laptop doesn't support AES through libsodium".
 class AESCipher : public Cipher {
 public:
     static constexpr size_t KEY_BYTES = 32;   // 256-bit key

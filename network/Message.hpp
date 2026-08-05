@@ -4,9 +4,6 @@
 #include <string>
 #include <ostream>
 
-// Message: a structured chat message that can pack itself into raw bytes
-// (for Socket::send) and rebuild itself from raw bytes (from Socket::receive).
-//
 //   [ senderId   : 4 bytes ]
 //   [ timestamp  : 8 bytes ]
 //   [ payloadLen : 4 bytes ]
