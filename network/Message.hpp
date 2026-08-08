@@ -4,6 +4,9 @@
 #include <string>
 #include <ostream>
 
+// Message: a structured chat message that can pack itself into raw bytes
+// (for Socket::send) and rebuild itself from raw bytes (from Socket::receive).
+//
 //   [ senderId   : 4 bytes ]
 //   [ timestamp  : 8 bytes ]
 //   [ payloadLen : 4 bytes ]
@@ -26,6 +29,7 @@ public:
 
     bool operator==(const Message& other) const;
     bool operator!=(const Message& other) const { return !(*this == other); }
+    static constexpr size_t WIRE_HEADER_SIZE = sizeof(uint32_t) + sizeof(uint64_t) + sizeof(uint32_t);
 
 private:
     uint32_t senderId_ = 0;

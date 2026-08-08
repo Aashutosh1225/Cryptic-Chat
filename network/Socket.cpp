@@ -3,6 +3,9 @@
 #include <utility>
 #include <iostream>
 
+// ---------------- WinsockGuard ----------------
+// Windows requires a one-time WSAStartup()/WSACleanup() call per process.
+// On Linux/Mac this class does nothing — safe to construct on both platforms.
 Socket::WinsockGuard::WinsockGuard() {
     WSADATA wsaData;
     int result = WSAStartup(MAKEWORD(2, 2), &wsaData);

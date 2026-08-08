@@ -3,15 +3,17 @@
 #include <string>
 #include <cstddef>
 
+// ---- Platform-specific includes & type aliases ----
     #include <winsock2.h>
     #include <ws2tcpip.h>
-    #pragma comment(lib, "Ws2_32.lib")
     using socket_t = SOCKET;
     constexpr socket_t INVALID_SOCKET_VALUE = INVALID_SOCKET;
         using ssize_t = long long;   // MSVC has no ssize_t by default
         #define _SSIZE_T_DEFINED
 
 // Socket: RAII wrapper around a raw TCP socket handle.
+// Works identically on Linux/Mac (POSIX) and Windows (Winsock) —
+// callers never touch socket_t directly.
 class Socket {
 public:
     Socket();                                  // creates a TCP socket
@@ -37,6 +39,8 @@ public:
     bool isValid() const;
     void close();
 
+    // One-time global setup/teardown for Winsock (no-op on Linux/Mac).
+    // Call WinsockGuard once at the very start of main() on either platform.
     class WinsockGuard {
     public:
         WinsockGuard();
