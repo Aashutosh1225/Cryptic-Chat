@@ -15,7 +15,7 @@ std::vector<uint8_t> AESCipher::encrypt(const std::vector<uint8_t>& plaintext) {
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (!ctx) throw std::runtime_error("EVP_CIPHER_CTX_new failed");
 
-    // 1. Init cipher type (AES-256-GCM) with no key/iv yet
+    // 1. Initialize cipher type (AES-256-GCM) with no key/iv yet
     EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr);
 
     // 2. Set IV length explicitly (GCM allows variable IV length; we standardize on 12 bytes)
