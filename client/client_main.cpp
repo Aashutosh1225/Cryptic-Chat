@@ -191,7 +191,7 @@ int main(int argc, char** argv) {
     // of racing with ChatWindow's own tryPop() drain.
     session->start();
 
-    ui::ChatWindow chatWindow("Encrypted Chat - " + username, {900, 600}, font, incoming);
+    ui::ChatWindow chatWindow("Cryptic-Chat " + username, {900, 600}, font, incoming);
     chatWindow.setStatus("Connected as " + username + " (" + host + ":" + std::to_string(port) + ")");
     chatWindow.appendSystemMessage("Connected. Type a message and press Enter or click Send.");
 
