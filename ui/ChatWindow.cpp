@@ -10,6 +10,7 @@ ChatWindow::ChatWindow(const std::string& title, sf::Vector2u size, const sf::Fo
     , history_(font, historyPosition(), historySize(size))
     , input_(font, inputPosition(size), inputSize(size))
     , sendButton_(font, "Send", sendButtonPosition(size), sendButtonSize())
+    , exitButton_(font, "Exit", exitButtonPosition(size), exitButtonSize())
     , statusText_(font, "", 14)
 {
     window_.setVerticalSyncEnabled(true);
@@ -18,12 +19,19 @@ ChatWindow::ChatWindow(const std::string& title, sf::Vector2u size, const sf::Fo
     input_.setMaxLength(2000);
 
     statusText_.setFillColor(sf::Color(160, 160, 160));
-    statusText_.setPosition({kPadding, kPadding / 2.f});
+    statusText_.setPosition({kPadding, static_cast<float>(static_cast<int>(kPadding / 2.f))});
 
     // Wire the widgets to each other: Enter in the input box, or clicking
     // Send, both go through the same sendCurrentMessage() path.
     input_.setOnSubmit([this](const std::string&) { sendCurrentMessage(); });
     sendButton_.setOnClick([this] { sendCurrentMessage(); });
+
+    // Exit button: same effect as the window's own X button or Escape --
+    // closing window_ makes isOpen() return false, which ends run()'s
+    // loop on its next iteration. Nothing network-specific happens here;
+    // client_main.cpp handles session->stop() once run() returns, same
+    // as any other way of closing the window.
+    exitButton_.setOnClick([this] { window_.close(); });
 
     // A window is more useful to compose in immediately, so focus it.
     input_.setFocused(true);
@@ -90,6 +98,7 @@ void ChatWindow::handleEvent(const sf::Event& event)
     history_.handleEvent(event);
     input_.handleEvent(event);
     sendButton_.handleEvent(event);
+    exitButton_.handleEvent(event);
 }
 
 void ChatWindow::pollAndHandleEvents()
@@ -120,6 +129,7 @@ void ChatWindow::render()
     history_.draw(window_);
     input_.draw(window_);
     sendButton_.draw(window_);
+    exitButton_.draw(window_);
     window_.draw(statusText_);
 
     window_.display();
@@ -181,6 +191,20 @@ sf::Vector2f ChatWindow::sendButtonPosition(sf::Vector2u windowSize)
 sf::Vector2f ChatWindow::sendButtonSize()
 {
     return {kSendButtonWidth, kInputHeight};
+}
+
+sf::Vector2f ChatWindow::exitButtonPosition(sf::Vector2u windowSize)
+{
+    // Top-right corner, sitting in the same status-bar strip as
+    // statusText_ (kPadding down from the top) rather than competing
+    // with the history/input/send layout below it.
+    float x = static_cast<float>(windowSize.x) - kPadding - kExitButtonWidth;
+    return {x, kPadding / 2.f};
+}
+
+sf::Vector2f ChatWindow::exitButtonSize()
+{
+    return {kExitButtonWidth, kStatusHeight};
 }
 
 } // namespace ui

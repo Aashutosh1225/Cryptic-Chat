@@ -115,6 +115,23 @@ public:
 
     bool isHandshakeComplete() const { return handshakeComplete_; }
 
+    // Closes the underlying socket. Added in Phase 14 so a thread other
+    // than the one blocked inside receiveMessage()/sendMessage() has a
+    // way to unblock it cleanly (see client/ClientSession.hpp::stop()).
+    // On Windows, calling closesocket() on a handle that another thread
+    // is currently blocked in recv()/send() on is documented, standard
+    // behavior for cancelling a blocked call -- the blocked call fails
+    // immediately (WSAENOTSOCK) rather than hanging forever, which is
+    // exactly the "close, don't try to forcibly interrupt" pattern
+    // MessageQueue::shutdown() (Phase 9) already uses for condition
+    // variables. Safe to call from a different thread than the one
+    // using the connection for I/O; NOT safe to call concurrently with
+    // another close() on the same Connection (matches Socket's own
+    // single-owner-closes-once contract).
+    void close() {
+        socket_.close();
+    }
+
     // Encrypts plaintext with the session's AESCipher, wraps it in a
     // Message (senderId + current timestamp + ciphertext), and sends the
     // serialized Message over the socket. Returns false if the handshake

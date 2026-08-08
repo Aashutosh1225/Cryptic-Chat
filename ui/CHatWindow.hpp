@@ -96,6 +96,7 @@ private:
     ScrollableTextArea history_;
     TextInputBox input_;
     Button sendButton_;
+    Button exitButton_;
     sf::Text statusText_;
 
     std::function<void(const std::string&)> onSend_;
@@ -104,6 +105,7 @@ private:
     static constexpr float kInputHeight = 32.f;
     static constexpr float kSendButtonWidth = 80.f;
     static constexpr float kStatusHeight = 24.f;
+    static constexpr float kExitButtonWidth = 60.f;
 
     void sendCurrentMessage();
     static sf::Vector2f historySize(sf::Vector2u windowSize);
@@ -112,6 +114,8 @@ private:
     static sf::Vector2f inputSize(sf::Vector2u windowSize);
     static sf::Vector2f sendButtonPosition(sf::Vector2u windowSize);
     static sf::Vector2f sendButtonSize();
+    static sf::Vector2f exitButtonPosition(sf::Vector2u windowSize);
+    static sf::Vector2f exitButtonSize();
 };
 
 } // namespace ui
