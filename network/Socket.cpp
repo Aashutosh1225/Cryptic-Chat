@@ -7,17 +7,19 @@
 // Windows requires a one-time WSAStartup()/WSACleanup() call per process.
 // On Linux/Mac this class does nothing — safe to construct on both platforms.
 Socket::WinsockGuard::WinsockGuard() {
+#ifdef _WIN32
     WSADATA wsaData;
     int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (result != 0) {
         std::cerr << "WSAStartup failed: " << result << "\n";
     }
+#endif
 }
 
 Socket::WinsockGuard::~WinsockGuard() {
-
+#ifdef _WIN32
     WSACleanup();
-
+#endif
 }
 
 // ---------------- Construction / Destruction ----------------
@@ -53,8 +55,12 @@ bool Socket::isValid() const {
 
 void Socket::close() {
     if (isValid()) {
-    closesocket(handle_);
-    handle_ = INVALID_SOCKET_VALUE;
+#ifdef _WIN32
+        closesocket(handle_);
+#else
+        ::close(handle_);
+#endif
+        handle_ = INVALID_SOCKET_VALUE;
     }
 }
 
@@ -75,7 +81,11 @@ bool Socket::listen(int backlog) {
 
 Socket Socket::accept() {
     sockaddr_in clientAddr{};
+ #ifdef _WIN32
     int addrLen = sizeof(clientAddr);
+ #else
+    socklen_t addrLen = sizeof(clientAddr);
+ #endif
     socket_t clientHandle = ::accept(handle_, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
     return Socket(clientHandle);   // moved out via move constructor
 }
@@ -97,9 +107,17 @@ bool Socket::connectTo(const std::string& host, uint16_t port) {
 
 // ---------------- Data transfer ----------------
 ssize_t Socket::send(const uint8_t* data, size_t len) {
+#ifdef _WIN32
     return ::send(handle_, reinterpret_cast<const char*>(data), static_cast<int>(len), 0);
+#else
+    return ::send(handle_, data, len, 0);
+#endif
 }
 
 ssize_t Socket::receive(uint8_t* buffer, size_t maxLen) {
+#ifdef _WIN32
     return ::recv(handle_, reinterpret_cast<char*>(buffer), static_cast<int>(maxLen), 0);
+#else
+    return ::recv(handle_, buffer, maxLen, 0);
+#endif
 }

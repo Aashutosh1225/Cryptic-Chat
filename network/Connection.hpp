@@ -17,22 +17,19 @@
 // (crypto) + Message (framing) together into a single class that performs
 // the handshake once, then sends/receives encrypted chat messages.
 //
-// Templated on the transport (SocketT) rather than hard-coded to the real
-// Socket class for one reason: Socket.hpp is Windows-only (unconditional
-// <winsock2.h>), so it can't be compiled or exercised on Linux at all --
-// there's no POSIX fallback in this project (by design; see the project
-// spec). Everything else Connection depends on (Message, Cipher,
+// Templated on the transport (SocketT) so the protocol can be tested with
+// an in-memory transport as well as used with the real cross-platform TCP
+// Socket. Everything Connection depends on (Message, Cipher,
 // RSAKeyExchange) is portable OpenSSL/standard-C++ code. Templating on the
 // transport means:
 //
-//   - Connection<Socket>       is the real thing, used on Windows.
+//   - Connection<Socket>       is the real TCP implementation on Windows and Linux.
 //   - Connection<LoopbackSocket> (test-only, see test_connection.cpp) is
 //     used to actually exercise the handshake and encrypted round-trip
 //     logic natively on Linux, over a real pair of threads talking through
 //     an in-memory byte pipe -- the same "verify natively on Linux first"
 //     discipline used for every portable phase so far, applied here via
-//     dependency injection instead of being blocked by Socket's
-//     Windows-only header.
+//     dependency injection.
 //
 // SocketT only needs to provide:
 //   ssize_t send(const uint8_t* data, size_t len);
@@ -139,13 +136,16 @@ public:
     bool sendMessage(uint32_t senderId, const std::string& plaintext) {
         if (!handshakeComplete_) return false;
 
-        std::vector<uint8_t> plainBytes(plaintext.begin(), plaintext.end());
-        std::vector<uint8_t> ciphertext = cipher_->encrypt(plainBytes);
-
         uint64_t timestamp = static_cast<uint64_t>(
             std::chrono::duration_cast<std::chrono::seconds>(
                 std::chrono::system_clock::now().time_since_epoch())
                 .count());
+
+        std::vector<uint8_t> plainBytes(plaintext.begin(), plaintext.end());
+        // Keep routing metadata visible to the protocol, but bind it to the
+        // GCM authentication tag so an attacker cannot alter it undetected.
+        std::vector<uint8_t> aad = makeMessageAad(senderId, timestamp);
+        std::vector<uint8_t> ciphertext = cipher_->encrypt(plainBytes, aad);
 
         Message message(senderId, timestamp, std::move(ciphertext));
         std::vector<uint8_t> wire = message.serialize();
@@ -188,7 +188,8 @@ public:
         }
 
         bool decryptOk = false;
-        std::vector<uint8_t> plainBytes = cipher_->decrypt(outMessage.getPayload(), decryptOk);
+        std::vector<uint8_t> aad = makeMessageAad(outMessage.getSenderId(), outMessage.getTimestamp());
+        std::vector<uint8_t> plainBytes = cipher_->decrypt(outMessage.getPayload(), decryptOk, aad);
         if (!decryptOk) {
             return false;
         }
@@ -231,6 +232,15 @@ private:
                (static_cast<uint32_t>(in[1]) << 16) |
                (static_cast<uint32_t>(in[2]) << 8) |
                static_cast<uint32_t>(in[3]);
+    }
+
+    static std::vector<uint8_t> makeMessageAad(uint32_t senderId, uint64_t timestamp) {
+        std::vector<uint8_t> aad(12);
+        writeBE32(aad.data(), senderId);
+        for (int i = 0; i < 8; ++i) {
+            aad[4 + i] = static_cast<uint8_t>(timestamp >> (56 - 8 * i));
+        }
+        return aad;
     }
 
     // ---- TCP-stream framing helpers ----

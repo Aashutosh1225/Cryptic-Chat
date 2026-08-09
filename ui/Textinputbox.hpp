@@ -32,6 +32,7 @@ public:
 
     void setMaxLength(std::size_t maxLength) { maxLength_ = maxLength; }
     void setPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
+    void setPasswordMode(bool passwordMode);
 
 private:
     sf::RectangleShape box_;
@@ -42,6 +43,7 @@ private:
     std::size_t cursorPos_ = 0;    // index into text_ (UTF-8 byte offset; ASCII-only for now)
     std::size_t maxLength_ = 512;
     bool focused_ = false;
+    bool passwordMode_ = false;
 
     sf::Clock blinkClock_;  // real-time clock; toggles cursorVisible_ every ~0.5s
     bool cursorVisible_ = true;

@@ -4,12 +4,21 @@
 #include <cstddef>
 
 // ---- Platform-specific includes & type aliases ----
+#ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
     using socket_t = SOCKET;
     constexpr socket_t INVALID_SOCKET_VALUE = INVALID_SOCKET;
-        using ssize_t = long long;   // MSVC has no ssize_t by default
-        #define _SSIZE_T_DEFINED
+    using ssize_t = long long;   // MSVC has no ssize_t by default
+#else
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <unistd.h>
+    using socket_t = int;
+    constexpr socket_t INVALID_SOCKET_VALUE = -1;
+#endif
 
 // Socket: RAII wrapper around a raw TCP socket handle.
 // Works identically on Linux/Mac (POSIX) and Windows (Winsock) —

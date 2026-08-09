@@ -13,12 +13,14 @@ public:
     // Encrypts plaintext, returns a self-contained ciphertext blob
     // (IV/nonce + auth tag are packed into the returned bytes, so the
     // caller only needs to store/transmit one buffer).
-    virtual std::vector<uint8_t> encrypt(const std::vector<uint8_t>& plaintext) = 0;
+    virtual std::vector<uint8_t> encrypt(const std::vector<uint8_t>& plaintext,
+                                         const std::vector<uint8_t>& associatedData = {}) = 0;
 
     // Decrypts a blob produced by encrypt(). Returns an empty vector
     // and sets outSuccess=false if the auth tag doesn't verify
     // (tampered/corrupted ciphertext or wrong key).
-    virtual std::vector<uint8_t> decrypt(const std::vector<uint8_t>& ciphertext, bool& outSuccess) = 0;
+    virtual std::vector<uint8_t> decrypt(const std::vector<uint8_t>& ciphertext, bool& outSuccess,
+                                         const std::vector<uint8_t>& associatedData = {}) = 0;
 };
 
 // AESCipher: AES-256-GCM via OpenSSL's EVP API.
@@ -35,8 +37,10 @@ public:
 
     explicit AESCipher(const std::array<uint8_t, KEY_BYTES>& key);
 
-    std::vector<uint8_t> encrypt(const std::vector<uint8_t>& plaintext) override;
-    std::vector<uint8_t> decrypt(const std::vector<uint8_t>& ciphertext, bool& outSuccess) override;
+    std::vector<uint8_t> encrypt(const std::vector<uint8_t>& plaintext,
+                                 const std::vector<uint8_t>& associatedData = {}) override;
+    std::vector<uint8_t> decrypt(const std::vector<uint8_t>& ciphertext, bool& outSuccess,
+                                 const std::vector<uint8_t>& associatedData = {}) override;
 
 private:
     std::array<uint8_t, KEY_BYTES> key_;

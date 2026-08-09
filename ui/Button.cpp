@@ -24,6 +24,12 @@ void Button::setLabel(const std::string& text)
     centerLabel();
 }
 
+void Button::setPrimary(bool primary)
+{
+    primary_ = primary;
+    updateColors();
+}
+
 void Button::centerLabel()
 {
     // Center the text's local bounds on the button's rectangle.
@@ -105,12 +111,18 @@ void Button::updateColors()
 {
     if (!enabled_)
         shape_.setFillColor(sf::Color(50, 50, 50));
+    else if (primary_ && pressed_)
+        shape_.setFillColor(sf::Color(34, 107, 184));
+    else if (primary_ && hovered_)
+        shape_.setFillColor(sf::Color(76, 157, 238));
+    else if (primary_)
+        shape_.setFillColor(sf::Color(52, 132, 220));
     else if (pressed_)
-        shape_.setFillColor(sf::Color(40, 40, 40));
+        shape_.setFillColor(sf::Color(40, 50, 68));
     else if (hovered_)
-        shape_.setFillColor(sf::Color(95, 95, 95));
+        shape_.setFillColor(sf::Color(65, 78, 102));
     else
-        shape_.setFillColor(sf::Color(70, 70, 70));
+        shape_.setFillColor(sf::Color(45, 56, 76));
 }
 
 } // namespace ui

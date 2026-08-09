@@ -63,6 +63,8 @@ std::vector<uint8_t> RSAKeyExchange::encryptSessionKey(const std::vector<uint8_t
     bool ok = true;
     ok = ok && (EVP_PKEY_encrypt_init(ctx) == 1);
     ok = ok && (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) == 1);
+    ok = ok && (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256()) == 1);
+    ok = ok && (EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha256()) == 1);
 
     size_t outLen = 0;
     // First call with a null output buffer just to learn the required size.
@@ -90,6 +92,8 @@ std::vector<uint8_t> RSAKeyExchange::decryptSessionKey(const std::vector<uint8_t
     bool ok = true;
     ok = ok && (EVP_PKEY_decrypt_init(ctx) == 1);
     ok = ok && (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) == 1);
+    ok = ok && (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256()) == 1);
+    ok = ok && (EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha256()) == 1);
 
     size_t outLen = 0;
     ok = ok && (EVP_PKEY_decrypt(ctx, nullptr, &outLen, encryptedSessionKey.data(), encryptedSessionKey.size()) == 1);

@@ -22,6 +22,7 @@ public:
 
     void setLabel(const std::string& text);
     const std::string& getLabel() const { return labelText_; }
+    void setPrimary(bool primary);
 
     bool isHovered() const { return hovered_; }
     bool isPressed() const { return pressed_; }
@@ -33,6 +34,7 @@ private:
     std::function<void()> onClick_;
     bool hovered_ = false;
     bool pressed_ = false;
+    bool primary_ = false;
 
     void centerLabel();
     void updateColors();

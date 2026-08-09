@@ -28,9 +28,9 @@ public:
     RSAKeyExchange& operator=(const RSAKeyExchange&) = delete;
 
     // Generates a fresh RSA keypair. 2048-bit is the practical minimum for
-    // real use; call with 4096 for extra margin at the cost of slower
-    // encrypt/decrypt.
-    bool generateKeypair(int bits = 2048);
+    // 3072-bit RSA provides a stronger long-term margin than the older
+    // 2048-bit default while remaining practical for a per-session handshake.
+    bool generateKeypair(int bits = 3072);
 
     // Exports this instance's PUBLIC key only, in DER format -- safe to
     // transmit to a peer in plaintext.

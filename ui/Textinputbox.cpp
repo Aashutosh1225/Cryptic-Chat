@@ -7,9 +7,9 @@ TextInputBox::TextInputBox(const sf::Font& font, sf::Vector2f position, sf::Vect
 {
     box_.setPosition(position);
     box_.setSize(size);
-    box_.setFillColor(sf::Color(30, 30, 30));
+    box_.setFillColor(sf::Color(20, 29, 43));
     box_.setOutlineThickness(1.f);
-    box_.setOutlineColor(sf::Color(100, 100, 100));
+    box_.setOutlineColor(sf::Color(71, 87, 112));
 
     display_.setCharacterSize(16);
     display_.setFillColor(sf::Color::White);
@@ -40,12 +40,18 @@ void TextInputBox::clear()
     refreshDisplay();
 }
 
+void TextInputBox::setPasswordMode(bool passwordMode)
+{
+    passwordMode_ = passwordMode;
+    refreshDisplay();
+}
+
 void TextInputBox::setFocused(bool focused)
 {
     focused_ = focused;
     cursorVisible_ = true;
     blinkClock_.restart();
-    box_.setOutlineColor(focused_ ? sf::Color(80, 160, 255) : sf::Color(100, 100, 100));
+    box_.setOutlineColor(focused_ ? sf::Color(84, 166, 255) : sf::Color(71, 87, 112));
     refreshDisplay();
 }
 
@@ -145,14 +151,14 @@ void TextInputBox::update()
 
 void TextInputBox::refreshDisplay()
 {
-    if (text_.empty() && !focused_)
+    if (text_.empty())
     {
         display_.setString(placeholder_);
         display_.setFillColor(sf::Color(140, 140, 140));
     }
     else
     {
-        display_.setString(text_);
+        display_.setString(passwordMode_ ? std::string(text_.size(), '*') : text_);
         display_.setFillColor(sf::Color::White);
     }
     updateCursorShape();
@@ -165,9 +171,11 @@ void TextInputBox::updateCursorShape()
     // its local bounds width (simple and correct for a monospace-ish UI
     // font; kerning-perfect placement isn't needed for a chat input box).
     sf::Text measure = display_;
-    measure.setString(text_.substr(0, cursorPos_));
+    std::string beforeCursor = text_.substr(0, cursorPos_);
+    if (passwordMode_) beforeCursor.assign(beforeCursor.size(), '*');
+    measure.setString(beforeCursor);
     float textWidth = measure.getLocalBounds().size.x;
-    if (!text_.substr(0, cursorPos_).empty())
+    if (!beforeCursor.empty())
     {
         // getLocalBounds() on SFML doesn't include trailing advance width,
         // so nudge using the full string advance instead when at the end.

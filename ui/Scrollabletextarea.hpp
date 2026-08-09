@@ -3,6 +3,7 @@
 #include "Widget.hpp"
 #include <deque>
 #include <string>
+#include <vector>
 
 namespace ui {
 
@@ -19,8 +20,10 @@ public:
     ScrollableTextArea(const sf::Font& font, sf::Vector2f position, sf::Vector2f size);
 
     void addLine(const std::string& line);
+    void addMessage(const std::string& author, const std::string& text, bool ownMessage = false);
+    void addSystemMessage(const std::string& text);
     void clear();
-    std::size_t lineCount() const { return lines_.size(); }
+    std::size_t lineCount() const { return messages_.size(); }
 
     void handleEvent(const sf::Event& event) override;
     void draw(sf::RenderTarget& target) const override;
@@ -39,15 +42,28 @@ private:
     sf::Vector2f size_;
     sf::RectangleShape background_;
 
-    std::deque<std::string> lines_;
-    unsigned int characterSize_ = 15;
-    float lineHeight_;
+    struct ChatMessage {
+        std::string author;
+        std::string text;
+        std::string timestamp;
+        bool own = false;
+        bool system = false;
+    };
+
+    std::deque<ChatMessage> messages_;
+    unsigned int characterSize_ = 17;
+    float lineHeight_ = 22.f;
 
     float scrollOffset_ = 0.f; // pixels scrolled down from the top of content
     bool pinnedToBottom_ = true; // auto-scroll to newest message while true
 
     static constexpr float kScrollStepPx = 40.f;
     static constexpr std::size_t kMaxLines = 5000; // cap to bound memory
+
+    float messageHeight(const ChatMessage& message) const;
+    std::vector<std::string> wrapText(const std::string& text) const;
+    static std::string timeNow();
+    static sf::Color avatarColor(const std::string& author);
 };
 
 } // namespace ui

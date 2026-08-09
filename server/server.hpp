@@ -12,13 +12,10 @@
 // Server<SocketT>: owns the set of currently-connected, authenticated
 // clients and relays chat messages between them.
 //
-// Templated on the transport for the same reason Connection<SocketT> is
-// (see network/Connection.hpp's comment block): Socket.hpp is
-// unconditionally Windows-only, so it can't compile on Linux at all.
-// Production wires this up as Server<Socket> (see server_main.cpp,
-// Phase 14); tests use Server<LoopbackSocket> so the accept-loop-adjacent
-// logic -- auth gate, client bookkeeping, concurrent broadcast -- can run
-// on real std::threads natively on Linux, same discipline as Phase 12.
+// Templated on the transport so production can use the real cross-platform
+// TCP Socket while tests use Server<LoopbackSocket>. This keeps the
+// accept-loop-adjacent logic -- auth gate, client bookkeeping, concurrent
+// broadcast -- independently testable.
 //
 // Server does NOT own the listening socket or run the accept() loop
 // itself -- that's a thin platform-specific piece (bind/listen/accept on
