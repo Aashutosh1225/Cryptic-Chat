@@ -42,7 +42,7 @@ AuthWindow::AuthWindow(const sf::Font& font, const std::string& host, uint16_t p
     helpText_.setPosition({kFieldLeft, 145.f});
     statusText_.setPosition({kFieldLeft, 462.f});
 
-    username_.setPlaceholder("3–32 characters: letters, numbers, _");
+    username_.setPlaceholder("3 - 32 characters: letters, numbers, _");
     username_.setMaxLength(32);
     password_.setPlaceholder("At least 8 characters");
     password_.setPasswordMode(true);
