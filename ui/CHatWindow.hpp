@@ -112,7 +112,7 @@ private:
     static constexpr float kInputHeight = 42.f;
     static constexpr float kSendButtonWidth = 110.f;
     static constexpr float kStatusHeight = 72.f;
-    static constexpr float kExitButtonWidth = 60.f;
+    static constexpr float kExitButtonWidth = 50.f;
 
     void sendCurrentMessage();
     static sf::Vector2f historySize(sf::Vector2u windowSize);

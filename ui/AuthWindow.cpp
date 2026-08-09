@@ -119,7 +119,7 @@ void AuthWindow::submit()
     }
     if (!onAuthenticate_) return;
 
-    setStatus("Connecting securely…", sf::Color(255, 220, 130));
+    setStatus("Connecting securely...", sf::Color(255, 220, 130));
     render();
     std::string status;
     if (onAuthenticate_(registerMode_, username_.getText(), password_.getText(), status)) {

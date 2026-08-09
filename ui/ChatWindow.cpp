@@ -9,7 +9,7 @@ ChatWindow::ChatWindow(const std::string& title, sf::Vector2u size, const sf::Fo
     , incoming_(incoming)
     , titleText_(font, "CRYPTIC-CHAT", 19)
     , composerLabel_(font, "MESSAGE", 12)
-    , hintText_(font, "Encrypted group chat  •  Enter to send", 13)
+    , hintText_(font, "Encrypted group chat  |  Enter to send", 13)
     , history_(font, historyPosition(), historySize(size))
     , input_(font, inputPosition(size), inputSize(size))
     , sendButton_(font, "Send", sendButtonPosition(size), sendButtonSize())
@@ -217,12 +217,12 @@ sf::Vector2f ChatWindow::exitButtonPosition(sf::Vector2u windowSize)
     // statusText_ (kPadding down from the top) rather than competing
     // with the history/input/send layout below it.
     float x = static_cast<float>(windowSize.x) - kPadding - kExitButtonWidth;
-    return {x, kPadding / 2.f};
+    return {x, (kStatusHeight / 2.f) - (kExitButtonWidth / 2.f)};
 }
 
 sf::Vector2f ChatWindow::exitButtonSize()
 {
-    return {kExitButtonWidth, kStatusHeight};
+    return {kExitButtonWidth, kExitButtonWidth};
 }
 
 } // namespace ui

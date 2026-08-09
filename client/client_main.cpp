@@ -85,7 +85,7 @@ int main(int argc, char** argv)
     session->start();
     ui::ChatWindow chatWindow("Cryptic-Chat | " + username, {960, 640}, font, incoming);
     chatWindow.setCurrentUser(username);
-    chatWindow.setStatus("Connected as " + username + "  •  " + host + ":" + std::to_string(port));
+    chatWindow.setStatus("Connected as " + username + " to " + host + ":" + std::to_string(port));
     chatWindow.appendSystemMessage("You are connected. Send a message with Enter or the Send button.");
     chatWindow.setOnSend([&session](const std::string& text) {
         if (!session->send(text)) std::cerr << "Failed to send message (connection may have dropped)\n";
