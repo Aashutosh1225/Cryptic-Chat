@@ -44,7 +44,6 @@ add_executable(server
     server/server_main.cpp
 
     ${COMMON_SOURCES}
-    db/ChatHistoryRepository.cpp
 )
 
 # =========================
