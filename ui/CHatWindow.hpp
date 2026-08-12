@@ -46,6 +46,7 @@ public:
                concurrency::MessageQueue<std::string>& incoming);
 
     void setOnSend(std::function<void(const std::string&)> callback);
+    void setCurrentUser(const std::string& username) { currentUser_ = username; }
 
     // Adds a line straight to the chat history without going through the
     // incoming queue or the send callback -- for local system messages
@@ -93,6 +94,11 @@ private:
     const sf::Font& font_;
     concurrency::MessageQueue<std::string>& incoming_;
 
+    sf::RectangleShape header_;
+    sf::Text titleText_;
+    sf::Text hintText_;
+    sf::Text composerLabel_;
+
     ScrollableTextArea history_;
     TextInputBox input_;
     Button sendButton_;
@@ -100,12 +106,13 @@ private:
     sf::Text statusText_;
 
     std::function<void(const std::string&)> onSend_;
+    std::string currentUser_ = "You";
 
     static constexpr float kPadding = 10.f;
-    static constexpr float kInputHeight = 32.f;
-    static constexpr float kSendButtonWidth = 80.f;
-    static constexpr float kStatusHeight = 24.f;
-    static constexpr float kExitButtonWidth = 60.f;
+    static constexpr float kInputHeight = 42.f;
+    static constexpr float kSendButtonWidth = 110.f;
+    static constexpr float kStatusHeight = 72.f;
+    static constexpr float kExitButtonWidth = 50.f;
 
     void sendCurrentMessage();
     static sf::Vector2f historySize(sf::Vector2u windowSize);

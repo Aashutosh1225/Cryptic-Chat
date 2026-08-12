@@ -1,5 +1,9 @@
 #include "Message.hpp"
-#include <winsock2.h>   // for htonl/ntohl (32-bit network byte order)
+#ifdef _WIN32
+    #include <winsock2.h>
+#else
+    #include <arpa/inet.h>
+#endif
 #include <cstring>
 
 static uint64_t hostToNetwork64(uint64_t value) {

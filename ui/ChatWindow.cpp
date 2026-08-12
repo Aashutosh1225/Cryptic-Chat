@@ -7,6 +7,9 @@ ChatWindow::ChatWindow(const std::string& title, sf::Vector2u size, const sf::Fo
     : window_(sf::VideoMode(size), title, sf::Style::Titlebar | sf::Style::Close)
     , font_(font)
     , incoming_(incoming)
+    , titleText_(font, "CRYPTIC-CHAT", 19)
+    , composerLabel_(font, "MESSAGE", 12)
+    , hintText_(font, "Encrypted group chat  |  Enter to send", 13)
     , history_(font, historyPosition(), historySize(size))
     , input_(font, inputPosition(size), inputSize(size))
     , sendButton_(font, "Send", sendButtonPosition(size), sendButtonSize())
@@ -15,16 +18,27 @@ ChatWindow::ChatWindow(const std::string& title, sf::Vector2u size, const sf::Fo
 {
     window_.setVerticalSyncEnabled(true);
 
-    input_.setPlaceholder("Type a message...");
+    header_.setPosition({0.f, 0.f});
+    header_.setSize({static_cast<float>(size.x), kStatusHeight});
+    header_.setFillColor(sf::Color(28, 40, 59));
+    titleText_.setPosition({20.f, 13.f});
+    titleText_.setFillColor(sf::Color(112, 190, 255));
+    hintText_.setPosition({20.f, 40.f});
+    hintText_.setFillColor(sf::Color(166, 184, 208));
+
+    composerLabel_.setFillColor(sf::Color(143, 165, 194));
+    composerLabel_.setPosition({kPadding, static_cast<float>(size.y) - 73.f});
+    input_.setPlaceholder("Write a message...");
     input_.setMaxLength(2000);
 
-    statusText_.setFillColor(sf::Color(160, 160, 160));
-    statusText_.setPosition({kPadding, static_cast<float>(static_cast<int>(kPadding / 2.f))});
+    statusText_.setFillColor(sf::Color(140, 225, 170));
+    statusText_.setPosition({310.f, 27.f});
 
     // Wire the widgets to each other: Enter in the input box, or clicking
     // Send, both go through the same sendCurrentMessage() path.
     input_.setOnSubmit([this](const std::string&) { sendCurrentMessage(); });
     sendButton_.setOnClick([this] { sendCurrentMessage(); });
+    sendButton_.setPrimary(true);
 
     // Exit button: same effect as the window's own X button or Escape --
     // closing window_ makes isOpen() return false, which ends run()'s
@@ -44,7 +58,7 @@ void ChatWindow::setOnSend(std::function<void(const std::string&)> callback)
 
 void ChatWindow::appendSystemMessage(const std::string& text)
 {
-    history_.addLine(text);
+    history_.addSystemMessage(text);
 }
 
 void ChatWindow::setStatus(const std::string& status)
@@ -64,7 +78,7 @@ void ChatWindow::sendCurrentMessage()
 
     // Show it locally immediately -- don't wait for a network round-trip
     // (there may not even be a Connection wired up yet in this phase).
-    history_.addLine("You: " + text);
+    history_.addMessage(currentUser_, text, true);
 
     if (onSend_)
     {
@@ -124,8 +138,12 @@ void ChatWindow::update()
 
 void ChatWindow::render()
 {
-    window_.clear(sf::Color(15, 15, 18));
+    window_.clear(sf::Color(15, 20, 30));
 
+    window_.draw(header_);
+    window_.draw(titleText_);
+    window_.draw(hintText_);
+    window_.draw(composerLabel_);
     history_.draw(window_);
     input_.draw(window_);
     sendButton_.draw(window_);
@@ -159,13 +177,13 @@ void ChatWindow::run()
 
 sf::Vector2f ChatWindow::historyPosition()
 {
-    return {kPadding, kPadding + kStatusHeight};
+    return {kPadding, kStatusHeight + 12.f};
 }
 
 sf::Vector2f ChatWindow::historySize(sf::Vector2u windowSize)
 {
     float width = static_cast<float>(windowSize.x) - 2.f * kPadding;
-    float height = static_cast<float>(windowSize.y) - 3.f * kPadding - kStatusHeight - kInputHeight;
+    float height = static_cast<float>(windowSize.y) - kStatusHeight - kInputHeight - 68.f;
     return {width, height};
 }
 
@@ -199,12 +217,12 @@ sf::Vector2f ChatWindow::exitButtonPosition(sf::Vector2u windowSize)
     // statusText_ (kPadding down from the top) rather than competing
     // with the history/input/send layout below it.
     float x = static_cast<float>(windowSize.x) - kPadding - kExitButtonWidth;
-    return {x, kPadding / 2.f};
+    return {x, (kStatusHeight / 2.f) - (kExitButtonWidth / 2.f)};
 }
 
 sf::Vector2f ChatWindow::exitButtonSize()
 {
-    return {kExitButtonWidth, kStatusHeight};
+    return {kExitButtonWidth, kExitButtonWidth};
 }
 
 } // namespace ui

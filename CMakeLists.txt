@@ -13,7 +13,7 @@ set(COMMON_SOURCES
     network/Message.cpp
     network/Socket.cpp
     crypto/Cipher.cpp
-    crypto/RSAKeyExchange.cpp
+    crypto/Rsakeyexchange.cpp
     crypto/PasswordHasher.cpp
     auth/AuthManager.cpp
     db/Database.cpp
@@ -28,9 +28,10 @@ add_executable(client
     client/client_main.cpp
 
     ui/ChatWindow.cpp
+    ui/AuthWindow.cpp
     ui/Button.cpp
-    ui/TextInputBox.cpp
-    ui/ScrollableTextArea.cpp
+    ui/Textinputbox.cpp
+    ui/Scrollabletextarea.cpp
 
     ${COMMON_SOURCES}
 )
@@ -73,8 +74,10 @@ target_link_libraries(server PRIVATE
 # SQLite
 # =========================
 
-target_link_libraries(client PRIVATE sqlite3)
-target_link_libraries(server PRIVATE sqlite3)
+find_package(SQLite3 REQUIRED)
+
+target_link_libraries(client PRIVATE SQLite3::SQLite3)
+target_link_libraries(server PRIVATE SQLite3::SQLite3)
 
 # =========================
 # Windows Networking
