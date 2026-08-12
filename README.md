@@ -272,9 +272,3 @@ client.exe "C:\Windows\Fonts\arial.ttf" 127.0.0.1 5555
 - Voice communication
 - Asynchronous networking
 - Thread pools
-
----
-
-## Authors
-
-Developed as an academic project demonstrating secure communication, networking, cryptography, concurrency, database management, and GUI development using modern C++.
